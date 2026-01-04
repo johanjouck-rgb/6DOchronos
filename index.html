@@ -37,11 +37,11 @@
 
 <div id="container">
     <h1>Entraînement Vocabulaire CréaFrench</h1>
-    <p style="color: #888;">Chaque série contient 14 mots.</p>
+    <p style="color: #888;">Chaque série contient 14 mots (9 nouveaux + 5 révisions).</p>
     
     <div class="selector-container">
         <label style="margin-right: 15px;">Choisir le Thème :</label>
-        <select id="trajet-select" onchange="generateSets(this.value)">
+        <select id="theme-select" onchange="genererSeries(this.value)">
             <option value="">-- Faites votre choix --</option>
             <option value="10">Thème 10 : L'Écologie</option>
             <option value="11">Thème 11 : La Politique & Le Pays</option>
@@ -61,11 +61,11 @@
             </thead>
             <tbody id="edit-body"></tbody>
         </table>
-        <button class="btn btn-secondary" onclick="addRow()">+ Ajouter un mot</button>
+        <button class="btn btn-secondary" onclick="ajouterLigne()">+ Ajouter un mot</button>
     </div>
     <div style="display:flex; gap:15px; width: 90%; max-width: 500px; margin-top: 20px;">
-        <button class="btn" onclick="saveAndStart()">🚀 Enregistrer et Commencer</button>
-        <button class="btn btn-secondary" onclick="closeEdit()">Annuler</button>
+        <button class="btn" onclick="sauvegarderEtDemarrer()">🚀 Enregistrer et Commencer</button>
+        <button class="btn btn-secondary" onclick="fermerEdition()">Annuler</button>
     </div>
 </div>
 
@@ -74,7 +74,7 @@
     <div id="timer-container"><div id="timer-bar"></div></div>
     <div id="word-display">Chargement...</div>
     <div style="display:flex; gap:15px;">
-        <button class="btn" style="width:140px; background:#555;" id="pause-btn" onclick="togglePause()">Pause</button>
+        <button class="btn" style="width:140px; background:#555;" id="pause-btn" onclick="basculerPause()">Pause</button>
         <button class="btn" style="width:140px; background:var(--danger);" onclick="location.reload()">Arrêter</button>
     </div>
 </div>
@@ -91,7 +91,7 @@
 </div>
 
 <script>
-const woordenLijst = [
+const listeVocabulaire = [
     // --- L'ÉCOLOGIE (10) ---
     {t:10, nl:"de bescherming van het milieu", fr:"la protection de l'environnement"},
     {t:10, nl:"het behoud van het milieu", fr:"la sauvegarde de l'environnement"},
@@ -103,7 +103,7 @@ const woordenLijst = [
     {t:10, nl:"de groenen (politiek)", fr:"les écologistes / les écolos"},
     {t:10, nl:"de duurzame ontwikkeling", fr:"le développement durable"},
     {t:10, nl:"de groene economie", fr:"l'économie verte"},
-    {t:10, nl:"een uitdaging voor het milieu", fr:"un défi environnemental"},
+    {t:10, nl:"un défi environnemental", fr:"un défi environnemental"},
     {t:10, nl:"het recycleren", fr:"le recyclage / recycler"},
     {t:10, nl:"het hergebruik", fr:"la récupération / récupérer"},
     {t:10, nl:"het afval sorteren", fr:"trier les déchets"},
@@ -116,264 +116,192 @@ const woordenLijst = [
     {t:10, nl:"de ecologische ramp", fr:"le désastre écologique"},
     {t:10, nl:"vervuilen", fr:"polluer"},
     {t:10, nl:"de vervuilende producten", fr:"les produits polluants"},
-    {t:10, nl:"schadelijk voor het milieu", fr:"néfaste pour l'environnement"},
     {t:10, nl:"de ontbossing", fr:"la déforestation"},
-    {t:10, nl:"de gezondheid in gevaar brengen", fr:"mettre en danger la santé"},
-    {t:10, nl:"giftig / schadelijk", fr:"toxique / nocif"},
+    {t:10, nl:"giftig", fr:"toxique / nocif"},
     {t:10, nl:"de opwarming van de aarde", fr:"le réchauffement climatique"},
     {t:10, nl:"het smelten van de ijskappen", fr:"la fonte des glaciers"},
-    {t:10, nl:"de zeespiegelstijging", fr:"la hausse du niveau des mers"},
     {t:10, nl:"de droogte", fr:"la sécheresse"},
     {t:10, nl:"de hittegolf", fr:"la canicule"},
     {t:10, nl:"de luchtvervuiling", fr:"la pollution atmosphérique"},
     {t:10, nl:"het fijn stof", fr:"les particules fines"},
     {t:10, nl:"de CO2 uitstoot", fr:"les émissions de CO2"},
-    {t:10, nl:"de vervuilingspiek", fr:"le pic de pollution"},
-    {t:10, nl:"bedreigde diersoorten", fr:"les espèces animales menacées"},
-    {t:10, nl:"de fossiele brandstoffen", fr:"l'énergie fossile"},
     {t:10, nl:"de hernieuwbare energie", fr:"l'énergie renouvelable"},
-    {t:10, nl:"de energetische overgang", fr:"la transition énergétique"},
-    {t:10, nl:"overstroming / noodweer", fr:"inondation / intempéries"},
-    {t:10, nl:"zonnepanelen installeren", fr:"installer des panneaux solaires"},
-    {t:10, nl:"windmolens", fr:"les éoliennes"},
+    {t:10, nl:"de zonnepanelen", fr:"les panneaux solaires"},
+    {t:10, nl:"de windturbine", fr:"l'éolienne"},
     {t:10, nl:"carpoolen", fr:"faire du covoiturage"},
-    {t:10, nl:"biolabel", fr:"labellisés bio"},
 
     // --- LA POLITIQUE (11) ---
     {t:11, nl:"een burger", fr:"un citoyen / une citoyenne"},
-    {t:11, nl:"rechten en plichten", fr:"des droits et des devoirs"},
+    {t:11, nl:"rechten en plichten", fr:"avoir des droits et des devoirs"},
     {t:11, nl:"het volk", fr:"le peuple"},
     {t:11, nl:"de bevolking", fr:"la population"},
     {t:11, nl:"de inwoners", fr:"les habitants"},
-    {t:11, nl:"een Frans staatsburger", fr:"un ressortissant français"},
     {t:11, nl:"vaderlandsliefde", fr:"le patriotisme"},
-    {t:11, nl:"Frankrijk is een seculiere Staat", fr:"la France est un État laïc"},
-    {t:11, nl:"de scheiding Kerk en Staat", fr:"la séparation des Églises et de l'État"},
-    {t:11, nl:"verbod religieuze tekens", fr:"l'interdiction des signes religieux"},
-    {t:11, nl:"verkozen worden", fr:"être élu"},
-    {t:11, nl:"stemmen op", fr:"voter pour"},
-    {t:11, nl:"een stembureau", fr:"un bureau de vote"},
-    {t:11, nl:"een blanco stem", fr:"un vote blanc"},
+    {t:11, nl:"scheiding Kerk en Staat", fr:"la séparation des Églises et de l'État"},
     {t:11, nl:"het stemrecht", fr:"le droit de vote"},
-    {t:11, nl:"de stemplicht", fr:"le vote obligatoire"},
-    {t:11, nl:"algemeen stemrecht", fr:"le suffrage universel"},
-    {t:11, nl:"de stembus", fr:"l'urne"},
-    {t:11, nl:"een stem (voice)", fr:"une voix"},
+    {t:11, nl:"de verkiezingen", fr:"les élections"},
+    {t:11, nl:"stemmen op", fr:"voter pour"},
+    {t:11, nl:"een politieke partij", fr:"un parti politique"},
     {t:11, nl:"de democratie", fr:"la démocratie"},
-    {t:11, nl:"de dictatuur", fr:"la dictature"},
-    {t:11, nl:"de monarchie", fr:"la Monarchie"},
-    {t:11, nl:"de Republiek", fr:"la République"},
-    {t:11, nl:"de President", fr:"le Président"},
-    {t:11, nl:"de Grondwet", fr:"la Constitution"},
-    {t:11, nl:"scheiding der machten", fr:"la séparation des pouvoirs"},
-    {t:11, nl:"wetgevende macht", fr:"le pouvoir législatif"},
-    {t:11, nl:"uitvoerende macht", fr:"le pouvoir exécutif"},
-    {t:11, nl:"rechterlijke macht", fr:"le pouvoir judiciaire"},
-    {t:11, nl:"het land besturen", fr:"diriger le pays"},
-    {t:11, nl:"de regering / regeren", fr:"le government / gouverner"},
-    {t:11, nl:"de Eerste Minister", fr:"le Premier Ministre"},
-    {t:11, nl:"een volksvertegenwoordiger", fr:"un député"},
-    {t:11, nl:"de wetten stemmen", fr:"voter les lois"},
-    {t:11, nl:"een wetsvoorstel", fr:"une proposition de loi"},
-    {t:11, nl:"de meerderheid", fr:"la majorité"},
-    {t:11, nl:"de Senaat", fr:"le Sénat"},
-    {t:11, nl:"partijen links/rechts", fr:"les partis de gauche / de droite"},
-    {t:11, nl:"de Europese Unie", fr:"l'Union Européenne"},
-    {t:11, nl:"het leger", fr:"l'armée"},
-    {t:11, nl:"de politie", fr:"la police"},
-    {t:11, nl:"sociale ongelijkheid", fr:"les inégalités sociales"},
-    {t:11, nl:"dakloos zijn / SDF", fr:"être sans-abri / un SDF"},
-    {t:11, nl:"zonder papieren", fr:"un sans-papier"},
-    {t:11, nl:"racisme / discriminatie", fr:"le racisme / la discrimination"},
-    {t:11, nl:"vrouwenhaat", fr:"la misogynie"},
-    {t:11, nl:"gelijkheid (pariteit)", fr:"la parité"},
-    {t:11, nl:"de staatsstructuur", fr:"la structure de l'État"},
-    {t:11, nl:"de gewesten", fr:"les régions"},
-    {t:11, nl:"de gemeenschappen", fr:"les communautés"},
+    {t:11, nl:"de grondwet", fr:"la constitution"},
+    {t:11, nl:"het parlement", fr:"le parlement"},
+    {t:11, nl:"de regering", fr:"le gouvernement"},
+    {t:11, nl:"de eerste minister", fr:"le Premier ministre"},
+    {t:11, nl:"de staatstructuur", fr:"la structure de l'État"},
     {t:11, nl:"de taalgrens", fr:"la frontière linguistique"},
-    {t:11, nl:"Buitenlandse Zaken", fr:"les Affaires Étrangères"},
 
     // --- ÉTUDES & MÉTIERS (12) ---
-    {t:12, nl:"kleuter- / lagere school", fr:"l'école maternelle / primaire"},
-    {t:12, nl:"de scholier", fr:"l'écolier, l'écolière"},
-    {t:12, nl:"leraar (lager onderwijs)", fr:"l'instituteur / l'institutrice"},
-    {t:12, nl:"de meester / juf", fr:"le maître / la maîtresse"},
-    {t:12, nl:"middelbare school (BE)", fr:"l'école secondaire"},
-    {t:12, nl:"het college / atheneum", fr:"le collège / l'athénée"},
-    {t:12, nl:"het 6de middelbaar (BE)", fr:"la rhéto"},
-    {t:12, nl:"middenschool (FR 11-15j)", fr:"le collège"},
-    {t:12, nl:"lyceum (FR 15-18j)", fr:"le lycée"},
-    {t:12, nl:"het eindexamen (FR)", fr:"le bac / le baccalauréat"},
-    {t:12, nl:"les geven", fr:"enseigner"},
-    {t:12, nl:"opvoeder / opzichter", fr:"éducateur / surveillant"},
-    {t:12, nl:"hoger onderwijs", fr:"l'enseignement supérieur"},
-    {t:12, nl:"hogeschool / universiteit", fr:"la haute école / l'université"},
-    {t:12, nl:"bachelor / master", fr:"le bachelier / le master"},
-    {t:12, nl:"de student(e)", fr:"un étudiant / une étudiante"},
-    {t:12, nl:"lessenrooster", fr:"l'horaire / l'emploi du temps"},
-    {t:12, nl:"vreemde talen", fr:"les langues étrangères"},
-    {t:12, nl:"wiskunde / aardrijkskunde", fr:"les maths / la géographie"},
-    {t:12, nl:"geschiedenis / economie", fr:"l'histoire / l'économie"},
-    {t:12, nl:"wetenschappen", fr:"les sciences (physique, chimie, bio)"},
-    {t:12, nl:"LO / sportles", fr:"le cours de gym / d'édu physique"},
-    {t:12, nl:"afstandsonderwijs", fr:"le cours à distance"},
-    {t:12, nl:"examen afleggen", fr:"passer un examen"},
-    {t:12, nl:"ijverig / aandachtig", fr:"appliqué / attentif"},
-    {t:12, nl:"hand opsteken / participeren", fr:"lever la main / participer"},
-    {t:12, nl:"notities nemen", fr:"prendre des notes"},
-    {t:12, nl:"best doen / vooruitgang boeken", fr:"faire de son mieux / des progrès"},
-    {t:12, nl:"babbelziek / brutaal / lui", fr:"bavard / insolent / paresseux"},
-    {t:12, nl:"spijbelen", fr:"sécher les cours"},
-    {t:12, nl:"slagen / buizen", fr:"réussir / rater"},
-    {t:12, nl:"herexamen", fr:"un examen de passage"},
-    {t:12, nl:"diploma behalen", fr:"obtenir / décrocher son diplôme"},
-    {t:12, nl:"op kot zitten", fr:"être en kot"},
-    {t:12, nl:"blokken / de blok", fr:"bloquer / le blocus"},
-    {t:12, nl:"hoorcollege / auditorium", fr:"cours magistral / amphi"},
-    {t:12, nl:"verpleging / kinesist", fr:"infirmier / kiné"},
-    {t:12, nl:"ingenieur / rechten", fr:"ingénieur / droit"},
-    {t:12, nl:"handelaar / verkoper", fr:"commerçant / vendeur"},
-    {t:12, nl:"kok / ober / technieker", fr:"cuisinier / serveur / technicien"},
-    {t:12, nl:"dokter / psycholoog", fr:"médecin / psychologue"},
-    {t:12, nl:"tandarts / dierenarts", fr:"dentiste / vétérinaire"},
-    {t:12, nl:"advocaat / notaris / jurist", fr:"avocat / notaire / juriste"},
-    {t:12, nl:"politieagent / steward", fr:"agent de police / steward"},
-    {t:12, nl:"journalist / schrijver", fr:"journaliste / écrivain"},
-    {t:12, nl:"ambtenaar / vertaler", fr:"fonctionnaire / traducteur"}
+    {t:12, nl:"de kleuterschool", fr:"l'école maternelle"},
+    {t:12, nl:"de lagere school", fr:"l'école primaire"},
+    {t:12, nl:"de middelbare school", fr:"l'école secondaire"},
+    {t:12, nl:"de leraar", fr:"un professeur / prof"},
+    {t:12, nl:"de hogeschool", fr:"la haute école"},
+    {t:12, nl:"de universiteit", fr:"l'université"},
+    {t:12, nl:"de student", fr:"un étudiant"},
+    {t:12, nl:"de campus", fr:"le campus"},
+    {t:12, nl:"het lessenrooster", fr:"l'horaire / l'emploi du temps"},
+    {t:12, nl:"examens afleggen", fr:"passer des examens"},
+    {t:12, nl:"geslaagd zijn", fr:"réussir"},
+    {t:12, nl:"gebuisd zijn", fr:"échouer / rater"},
+    {t:12, nl:"het diploma", fr:"le diplôme"},
+    {t:12, nl:"de wiskunde", fr:"les maths"},
+    {t:12, nl:"de dokter", fr:"le médecin"},
+    {t:12, nl:"de verpleger", fr:"l'infirmier"},
+    {t:12, nl:"de advocaat", fr:"l'avocat"},
+    {t:12, nl:"de ingenieur", fr:"l'ingénieur"}
 ];
 
-let allSets = [];
-let currentSetIdx = 0, wordIdx = 0, timeLeft = 8, isPaused = false, interval;
+let toutesLesSeries = [];
+let indexSerieActuelle = 0, indexMotActuel = 0, tempsRestant = 8, estEnPause = false, intervalle;
 
-function generateSets(themaNum) {
-    const grid = document.getElementById('set-grid');
-    grid.innerHTML = '';
-    if (!themaNum) return;
+function genererSeries(numTheme) {
+    const grille = document.getElementById('set-grid');
+    grille.innerHTML = '';
+    if (!numTheme) return;
 
-    const gefilterd = woordenLijst.filter(w => w.t == themaNum);
-    allSets = [];
-    let currentPointer = 0;
+    const vocabulaireFiltre = listeVocabulaire.filter(m => m.t == numTheme);
+    toutesLesSeries = [];
+    let pointeurActuel = 0;
 
     for (let i = 0; i < 10; i++) {
-        let set = [];
+        let serie = [];
         if (i === 0) {
             for(let k=0; k<14; k++) {
-                set.push(gefilterd[k % gefilterd.length]);
+                serie.push(vocabulaireFiltre[k % vocabulaireFiltre.length]);
             }
-            currentPointer = 14; 
+            pointeurActuel = 14; 
         } else {
-            const overlap = allSets[i-1].slice(-5);
-            let nieuweWoorden = [];
+            const chevauchement = toutesLesSeries[i-1].slice(-5);
+            let nouveauxMots = [];
             for (let k = 0; k < 9; k++) {
-                nieuweWoorden.push(gefilterd[currentPointer % gefilterd.length]);
-                currentPointer++;
+                nouveauxMots.push(vocabulaireFiltre[pointeurActuel % vocabulaireFiltre.length]);
+                pointeurActuel++;
             }
-            set = [...overlap, ...nieuweWoorden];
+            serie = [...chevauchement, ...nouveauxMots];
         }
-        allSets.push(set);
+        toutesLesSeries.push(serie);
     }
 
-    allSets.forEach((set, i) => {
-        const card = document.createElement('div');
-        card.className = 'set-card';
-        card.innerHTML = `
+    toutesLesSeries.forEach((serie, i) => {
+        const carte = document.createElement('div');
+        carte.className = 'set-card';
+        carte.innerHTML = `
             <h3>Série ${i+1}</h3>
             <p style="color:#888; font-size:14px;">14 mots (9 nouveaux)</p>
-            <button class="btn" onclick="startSet(${i})">🚀 Commencer</button>
-            <button class="btn btn-secondary" onclick="openEdit(${i})">📝 Voir la liste</button>
+            <button class="btn" onclick="demarrerSerie(${i})">🚀 Commencer</button>
+            <button class="btn btn-secondary" onclick="ouvrirEdition(${i})">📝 Voir la liste</button>
         `;
-        grid.appendChild(card);
+        grille.appendChild(carte);
     });
 }
 
-function openEdit(idx) {
-    currentSetIdx = idx;
+function ouvrirEdition(idx) {
+    indexSerieActuelle = idx;
     document.getElementById('edit-title').innerText = `Modifier Série ${idx + 1}`;
-    const tbody = document.getElementById('edit-body');
-    tbody.innerHTML = '';
-    allSets[idx].forEach((word) => addTableRow(word.nl, word.fr));
+    const corpsTableau = document.getElementById('edit-body');
+    corpsTableau.innerHTML = '';
+    toutesLesSeries[idx].forEach((mot) => ajouterLigneTableau(mot.nl, mot.fr));
     document.getElementById('edit-screen').style.display = 'flex';
 }
 
-function addTableRow(nl = "", fr = "") {
-    const tbody = document.getElementById('edit-body');
-    const row = document.createElement('tr');
-    row.innerHTML = `
+function ajouterLigneTableau(nl = "", fr = "") {
+    const corpsTableau = document.getElementById('edit-body');
+    const ligne = document.createElement('tr');
+    ligne.innerHTML = `
         <td><input type="text" class="edit-nl" value="${nl}"></td>
         <td><input type="text" class="edit-fr" value="${fr}"></td>
         <td><button onclick="this.parentElement.parentElement.remove()" style="color:red; background:none; border:none; cursor:pointer;">✖</button></td>
     `;
-    tbody.appendChild(row);
+    corpsTableau.appendChild(ligne);
 }
 
-function addRow() { addTableRow(); }
+function ajouterLigne() { ajouterLigneTableau(); }
 
-function saveAndStart() {
-    const newWords = [];
-    const nlInputs = document.querySelectorAll('.edit-nl');
-    const frInputs = document.querySelectorAll('.edit-fr');
-    nlInputs.forEach((input, i) => {
-        if(input.value.trim() !== "") {
-            newWords.push({ nl: input.value, fr: frInputs[i].value });
+function sauvegarderEtDemarrer() {
+    const nouveauxMots = [];
+    const entreesNl = document.querySelectorAll('.edit-nl');
+    const entreesFr = document.querySelectorAll('.edit-fr');
+    entreesNl.forEach((entree, i) => {
+        if(entree.value.trim() !== "") {
+            nouveauxMots.push({ nl: entree.value, fr: entreesFr[i].value });
         }
     });
-    allSets[currentSetIdx] = newWords;
-    closeEdit();
-    startSet(currentSetIdx);
+    toutesLesSeries[indexSerieActuelle] = nouveauxMots;
+    fermerEdition();
+    demarrerSerie(indexSerieActuelle);
 }
 
-function closeEdit() { document.getElementById('edit-screen').style.display = 'none'; }
+function fermerEdition() { document.getElementById('edit-screen').style.display = 'none'; }
 
-function startSet(idx) {
-    currentSetIdx = idx; wordIdx = 0; isPaused = false;
+function demarrerSerie(idx) {
+    indexSerieActuelle = idx; indexMotActuel = 0; estEnPause = false;
     document.getElementById('container').style.display = 'none';
     document.getElementById('exercise').style.display = 'flex';
-    nextWord();
+    motSuivant();
 }
 
-function nextWord() {
-    const set = allSets[currentSetIdx];
-    if (wordIdx >= set.length) { showResults(); return; }
+function motSuivant() {
+    const serie = toutesLesSeries[indexSerieActuelle];
+    if (indexMotActuel >= serie.length) { afficherResultats(); return; }
     
-    timeLeft = 8; 
-    document.getElementById('word-display').innerText = set[wordIdx].nl;
-    document.getElementById('info-header').innerText = `Série ${currentSetIdx+1} — Mot ${wordIdx+1}/${set.length}`;
-    updateTimerBar();
+    tempsRestant = 8; 
+    document.getElementById('word-display').innerText = serie[indexMotActuel].nl;
+    document.getElementById('info-header').innerText = `Série ${indexSerieActuelle+1} — Mot ${indexMotActuel+1}/${serie.length}`;
+    mettreAJourBarreTimer();
 
-    if (interval) clearInterval(interval);
-    interval = setInterval(() => {
-        if (!isPaused) {
-            timeLeft--; 
-            updateTimerBar();
-            if (timeLeft <= 0) { 
-                wordIdx++; 
-                nextWord(); 
+    if (intervalle) clearInterval(intervalle);
+    intervalle = setInterval(() => {
+        if (!estEnPause) {
+            tempsRestant--; 
+            mettreAJourBarreTimer();
+            if (tempsRestant <= 0) { 
+                indexMotActuel++; 
+                motSuivant(); 
             }
         }
     }, 1000);
 }
 
-function updateTimerBar() {
-    const bar = document.getElementById('timer-bar');
-    bar.style.width = (timeLeft / 8 * 100) + '%';
-    bar.style.backgroundColor = timeLeft < 3 ? 'var(--danger)' : 'var(--success)';
+function mettreAJourBarreTimer() {
+    const barre = document.getElementById('timer-bar');
+    barre.style.width = (tempsRestant / 8 * 100) + '%';
+    barre.style.backgroundColor = tempsRestant < 3 ? 'var(--danger)' : 'var(--success)';
 }
 
-function togglePause() {
-    isPaused = !isPaused;
-    document.getElementById('pause-btn').innerText = isPaused ? "Reprendre" : "Pause";
+function basculerPause() {
+    estEnPause = !estEnPause;
+    document.getElementById('pause-btn').innerText = estEnPause ? "Reprendre" : "Pause";
 }
 
-function showResults() {
-    clearInterval(interval);
+function afficherResultats() {
+    clearInterval(intervalle);
     document.getElementById('exercise').style.display = 'none';
     document.getElementById('result').style.display = 'flex';
-    document.getElementById('res-body').innerHTML = allSets[currentSetIdx].map(w => `
-        <tr><td>${w.nl}</td><td style="color:var(--primary); font-weight:bold;">${w.fr}</td></tr>
+    document.getElementById('res-body').innerHTML = toutesLesSeries[indexSerieActuelle].map(m => `
+        <tr><td>${m.nl}</td><td style="color:var(--primary); font-weight:bold;">${m.fr}</td></tr>
     `).join('');
 }
 </script>
 
 </body>
 </html>
-
