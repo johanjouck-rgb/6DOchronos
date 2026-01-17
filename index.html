@@ -28,8 +28,13 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border: 1px solid #444; text-align: left; }
         th { background: #333; color: var(--primary); }
-        .scroll-area { width: 90%; max-height: 70vh; overflow-y: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; }
+        .scroll-area { width: 90%; max-height: 75vh; overflow-y: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; }
         
+        /* --- AANPASSING: GROTERE LETTERTYPE VOOR RESULTATEN --- */
+        #res-body tr td { font-size: 30px; padding: 15px; line-height: 1.4; } 
+        #result table th { font-size: 24px; }
+        /* ----------------------------------------------------- */
+
         input[type="text"] { background: #333; color: white; border: 1px solid #555; padding: 8px; width: 90%; border-radius: 4px; }
         .sync-box { margin-top: 30px; padding: 15px; background: #222; border-radius: 8px; font-size: 0.9rem; }
     </style>
@@ -82,14 +87,15 @@
     <div id="info-header" style="font-size: 1.2rem; color: #aaa;"></div>
     <div id="timer-container"><div id="timer-bar"></div></div>
     <div id="word-display">Chargement...</div>
-    <div style="display:flex; gap:15px;">
+    
+    <div id="exercise-buttons" style="display:flex; gap:15px;">
         <button class="btn" style="width:140px; background:#555;" id="pause-btn" onclick="basculerPause()">Pause</button>
         <button class="btn" style="width:140px; background:var(--danger);" onclick="location.reload()">Arrêter</button>
     </div>
 </div>
 
 <div id="result" class="screen">
-    <h2 style="color: var(--success);">Série terminée !</h2>
+    <h2 style="color: var(--success);">Solutions</h2>
     <div class="scroll-area">
         <table>
             <thead><tr><th>Néerlandais</th><th>Français</th></tr></thead>
@@ -134,10 +140,8 @@ function genererSeries(numTheme) {
         for (let i = 0; i < 10; i++) {
             let serie = [];
             if (i === 0) {
-                // Eerste set: 14 random woorden
                 serie = melanger([...vocabulaireFiltre]).slice(0, 14);
             } else {
-                // Volgende sets: 5 random uit de vorige + 9 random nieuwe
                 const chevauchement = melanger([...toutesLesSeries[i-1]]).slice(0, 5);
                 const reste = vocabulaireFiltre.filter(m => !chevauchement.includes(m));
                 const nouveaux = melanger([...reste]).slice(0, 9);
@@ -182,7 +186,6 @@ function importerData() {
     }
 }
 
-// REST VAN DE LOGICA (Ongewijzigd)
 function ouvrirEdition(idx) {
     indexSerieActuelle = idx;
     document.getElementById('edit-title').innerText = `Modifier Série ${idx + 1}`;
@@ -226,17 +229,35 @@ function fermerEdition() { document.getElementById('edit-screen').style.display 
 
 function demarrerSerie(idx) {
     indexSerieActuelle = idx; indexMotActuel = 0; estEnPause = false;
+    
+    // UI RESET (voor het geval we herstarten)
     document.getElementById('container').style.display = 'none';
     document.getElementById('exercise').style.display = 'flex';
+    document.getElementById('timer-container').style.display = 'block'; // Timer weer tonen
+    
+    // Knoppen resetten naar Pause/Arrêter
+    document.getElementById('exercise-buttons').innerHTML = `
+        <button class="btn" style="width:140px; background:#555;" id="pause-btn" onclick="basculerPause()">Pause</button>
+        <button class="btn" style="width:140px; background:var(--danger);" onclick="location.reload()">Arrêter</button>
+    `;
+
     motSuivant();
 }
 
 function motSuivant() {
     const serie = toutesLesSeries[indexSerieActuelle];
-    if (indexMotActuel >= serie.length) { afficherResultats(); return; }
+    
+    // AANPASSING: Als de lijst klaar is, niet direct resultaten tonen, maar wachten
+    if (indexMotActuel >= serie.length) { 
+        wachtenOpDocent(); 
+        return; 
+    }
+    
     tempsRestant = 8; 
     document.getElementById('word-display').innerText = serie[indexMotActuel].nl;
+    document.getElementById('word-display').style.fontSize = "60px"; // Reset grootte voor het geval dit veranderd was
     document.getElementById('info-header').innerText = `Série ${indexSerieActuelle+1} — Mot ${indexMotActuel+1}/${serie.length}`;
+    
     if (intervalle) clearInterval(intervalle);
     intervalle = setInterval(() => {
         if (!estEnPause) {
@@ -250,6 +271,22 @@ function motSuivant() {
 function basculerPause() {
     estEnPause = !estEnPause;
     document.getElementById('pause-btn').innerText = estEnPause ? "Reprendre" : "Pause";
+}
+
+// NIEUWE FUNCTIE: Tussenstap
+function wachtenOpDocent() {
+    clearInterval(intervalle);
+    document.getElementById('timer-container').style.display = 'none'; // Verberg timer
+    document.getElementById('word-display').innerHTML = "Série terminée !";
+    document.getElementById('word-display').style.fontSize = "40px";
+    
+    // Verander de knoppen onderaan naar één grote knop
+    const btnContainer = document.getElementById('exercise-buttons');
+    btnContainer.innerHTML = `
+        <button class="btn" style="width: auto; padding: 15px 40px; font-size: 22px; background: var(--success);" onclick="afficherResultats()">
+            👀 Afficher les Solutions
+        </button>
+    `;
 }
 
 function afficherResultats() {
