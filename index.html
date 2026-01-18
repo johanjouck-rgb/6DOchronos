@@ -21,7 +21,7 @@
 
         .screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; justify-content: center; align-items: center; flex-direction: column; }
         
-        #word-display { font-size: 60px; font-weight: bold; margin: 40px 0; color: var(--accent); text-shadow: 2px 2px 10px rgba(0,0,0,0.5); padding: 0 20px; text-align: center; }
+        #word-display { font-size: 60px; font-weight: bold; margin: 40px 0; color: var(--accent); text-shadow: 2px 2px 10px rgba(0,0,0,0.5); padding: 0 20px; text-align: center; max-width: 90%; word-wrap: break-word;}
         #timer-container { width: 70%; height: 12px; background: #333; border-radius: 6px; margin: 20px auto; overflow: hidden; }
         #timer-bar { width: 100%; height: 100%; background: var(--success); transition: width 1s linear; }
 
@@ -30,20 +30,18 @@
         th { background: #333; color: var(--primary); }
         .scroll-area { width: 90%; max-height: 75vh; overflow-y: auto; background: #1e1e1e; padding: 20px; border-radius: 10px; }
         
-        /* --- AANPASSING: GROTERE LETTERTYPE VOOR RESULTATEN --- */
         #res-body tr td { font-size: 30px; padding: 15px; line-height: 1.4; } 
         #result table th { font-size: 24px; }
-        /* ----------------------------------------------------- */
 
         input[type="text"] { background: #333; color: white; border: 1px solid #555; padding: 8px; width: 90%; border-radius: 4px; }
-        .sync-box { margin-top: 30px; padding: 15px; background: #222; border-radius: 8px; font-size: 0.9rem; }
+        .sync-box { margin-top: 30px; padding: 15px; background: #222; border-radius: 8px; font-size: 0.9rem; border: 1px dashed #444;}
     </style>
 </head>
 <body>
 
 <div id="container">
     <h1>Entraînement Vocabulaire CréaFrench</h1>
-    <p style="color: #888;">Elke set bevat een willekeurige mix van woorden (9 nieuw + 5 herhaling).</p>
+    <p style="color: #888;">Sets de 14 mots (ordre fixe).</p>
     
     <div class="selector-container">
         <label style="margin-right: 15px;">Choisir le Thème :</label>
@@ -60,8 +58,8 @@
     <div class="sync-box">
         <p>🔄 <b>Synchroniser :</b></p>
         <div style="display: flex; gap: 10px; justify-content: center;">
-            <button class="btn btn-secondary" style="width: 200px;" onclick="exporterData()">Copier ma liste</button>
-            <button class="btn btn-secondary" style="width: 200px;" onclick="importerData()">Coller une liste</button>
+            <button class="btn btn-secondary" style="width: 200px;" onclick="exporterData()">Copier ma lijst (Exporter)</button>
+            <button class="btn btn-secondary" style="width: 200px;" onclick="importerData()">Coller een lijst (Importer)</button>
         </div>
     </div>
 </div>
@@ -108,7 +106,7 @@
 <script>
 const listeVocabulaire = [
     // --- L'ÉCOLOGIE (10) ---
-    {t:10, nl:"de bescherming van het milieu", fr:"la protection de l'environnement"}, {t:10, nl:"het behoud van het milieu", fr:"la sauvegarde de l'environnement"}, {t:10, nl:"de planeet beschermen", fr:"protéger la planète"}, {t:10, nl:"het klimaat redden", fr:"sauver le climat"}, {t:10, nl:"het respect voor de natuur", fr:"le respect de la nature"}, {t:10, nl:"de biodiversiteit beschermen", fr:"sauvegarder la biodiversité"}, {t:10, nl:"de ecosystemen beschermen", fr:"préserver les écosystèmes"}, {t:10, nl:"de groenen (politiek)", fr:"les écologistes / les écolos"}, {t:10, nl:"de duurzame ontwikkeling", fr:"le développement durable"}, {t:10, nl:"de groene economie", fr:"l'économie verte"}, {t:10, nl:"een uitdaging voor het milieu", fr:"un défi environnemental"}, {t:10, nl:"het recycleren", fr:"le recyclage / recycler"}, {t:10, nl:"het hergebruik", fr:"la récupération / récupérer"}, {t:10, nl:"het afval sorteren", fr:"trier les déchets"}, {t:10, nl:"het sorteren", fr:"le tri sélectief"}, {t:10, nl:"zero waste", fr:"le zéro déchet"}, {t:10, nl:"de overbodige verpakkingen", fr:"les emballages superflus"}, {t:10, nl:"wegwerpplastic", fr:"le plastique à usage unique"}, {t:10, nl:"biologisch afbreekbaar", fr:"biodégradable"}, {t:10, nl:"de klimaatverandering", fr:"le changement climatique"}, {t:10, nl:"de ecologische ramp", fr:"le désastre écologique"}, {t:10, nl:"vervuilen", fr:"polluer"}, {t:10, nl:"de vervuilende producten", fr:"les produits polluants"}, {t:10, nl:"de ontbossing", fr:"la déforestation"}, {t:10, nl:"giftig", fr:"toxique / nocif"}, {t:10, nl:"de opwarming van de aarde", fr:"le réchauffement climatique"}, {t:10, nl:"het smelten van de ijskappen", fr:"la fonte des glaciers"}, {t:10, nl:"de droogte", fr:"la sécheresse"}, {t:10, nl:"de hittegolf", fr:"la canicule"}, {t:10, nl:"de luchtvervuiling", fr:"la pollution atmosphérique"}, {t:10, nl:"het fijn stof", fr:"les particules fines"}, {t:10, nl:"de CO2 uitstoot", fr:"les émissions de CO2"}, {t:10, nl:"de hernieuwbare energie", fr:"l'énergie renouvelable"}, {t:10, nl:"de zonnepanelen", fr:"les panneaux solaires"}, {t:10, nl:"de windturbine", fr:"l'eolienne"}, {t:10, nl:"carpoolen", fr:"faire du covoiturage"},
+    {t:10, nl:"de bescherming van het milieu", fr:"la protection de l'environnement"}, {t:10, nl:"het behoud van het milieu", fr:"la sauvegarde de l'environnement"}, {t:10, nl:"de planeet beschermen", fr:"protéger la planète"}, {t:10, nl:"het klimaat redden", fr:"sauver le climat"}, {t:10, nl:"het respect voor de nature", fr:"le respect de la nature"}, {t:10, nl:"de biodiversiteit beschermen", fr:"sauvegarder la biodiversité"}, {t:10, nl:"de ecosystemen beschermen", fr:"préserver les écosystèmes"}, {t:10, nl:"de groenen (politiek)", fr:"les écologistes / les écolos"}, {t:10, nl:"de duurzame ontwikkeling", fr:"le développement durable"}, {t:10, nl:"de groene economie", fr:"l'économie verte"}, {t:10, nl:"een uitdaging voor het milieu", fr:"un défi environnemental"}, {t:10, nl:"het recycleren", fr:"le recyclage / recycler"}, {t:10, nl:"het hergebruik", fr:"la récupération / récupérer"}, {t:10, nl:"het afval sorteren", fr:"trier les déchets"}, {t:10, nl:"het sorteren", fr:"le tri sélectief"}, {t:10, nl:"zero waste", fr:"le zéro déchet"}, {t:10, nl:"de overbodige verpakkingen", fr:"les emballages superflus"}, {t:10, nl:"wegwerpplastic", fr:"le plastique à usage unique"}, {t:10, nl:"biologisch afbreekbaar", fr:"biodégradable"}, {t:10, nl:"de klimaatverandering", fr:"le changement climatique"}, {t:10, nl:"de ecologische ramp", fr:"le désastre écologique"}, {t:10, nl:"vervuilen", fr:"polluer"}, {t:10, nl:"de vervuilende producten", fr:"les produits polluants"}, {t:10, nl:"de ontbossing", fr:"la déforestation"}, {t:10, nl:"giftig", fr:"toxique / nocif"}, {t:10, nl:"de opwarming van de aarde", fr:"le réchauffement climatique"}, {t:10, nl:"het smelten van de ijskappen", fr:"la fonte des glaciers"}, {t:10, nl:"de droogte", fr:"la sécheresse"}, {t:10, nl:"de hittegolf", fr:"la canicule"}, {t:10, nl:"de luchtvervuiling", fr:"la pollution atmosphérique"}, {t:10, nl:"het fijn stof", fr:"les particules fines"}, {t:10, nl:"de CO2 uitstoot", fr:"les émissions de CO2"}, {t:10, nl:"de hernieuwbare energie", fr:"l'énergie renouvelable"}, {t:10, nl:"de zonnepanelen", fr:"les panneaux solaires"}, {t:10, nl:"de windturbine", fr:"l'eolienne"}, {t:10, nl:"carpoolen", fr:"faire du covoiturage"},
     // --- LA POLITIQUE (11) ---
     {t:11, nl:"een burger", fr:"un citoyen / une citoyenne"}, {t:11, nl:"rechten en plichten", fr:"avoir des droits et des devoirs"}, {t:11, nl:"het volk", fr:"le peuple"}, {t:11, nl:"de bevolking", fr:"la population"}, {t:11, nl:"de inwoners", fr:"les habitants"}, {t:11, nl:"vaderlandsliefde", fr:"le patriotisme"}, {t:11, nl:"scheiding Kerk en Staat", fr:"la séparation des Églises et de l'État"}, {t:11, nl:"het stemrecht", fr:"le droit de vote"}, {t:11, nl:"de verkiezingen", fr:"les élections"}, {t:11, nl:"stemmen op", fr:"voter pour"}, {t:11, nl:"een politieke partij", fr:"un parti politique"}, {t:11, nl:"de democratie", fr:"la démocratie"}, {t:11, nl:"de grondwet", fr:"la constitution"}, {t:11, nl:"het parlement", fr:"le parlement"}, {t:11, nl:"de regering", fr:"le gouvernement"}, {t:11, nl:"de eerste minister", fr:"le Premier ministre"}, {t:11, nl:"de staatstructuur", fr:"la structure de l'État"}, {t:11, nl:"de taalgrens", fr:"la frontière linguistique"},
     // --- ÉTUDES & MÉTIERS (12) ---
@@ -118,9 +116,20 @@ const listeVocabulaire = [
 let toutesLesSeries = [];
 let indexSerieActuelle = 0, indexMotActuel = 0, tempsRestant = 8, estEnPause = false, intervalle;
 
-// HELPER: Shuffle array
-function melanger(array) {
-    return array.sort(() => Math.random() - 0.5);
+// VASTE SHUFFLE FUNCTIE
+function seededShuffle(array, seed) {
+    let m = array.length, t, i;
+    const random = () => {
+        var x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+    while (m) {
+        i = Math.floor(random() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
+    return array;
 }
 
 function genererSeries(numTheme) {
@@ -134,18 +143,18 @@ function genererSeries(numTheme) {
     if (dataSauvegardee) {
         toutesLesSeries = JSON.parse(dataSauvegardee);
     } else {
-        const vocabulaireFiltre = listeVocabulaire.filter(m => m.t == numTheme);
-        toutesLesSeries = [];
+        // Shuffle de hele lijst één keer op basis van een vaste seed (bijv. 12345)
+        let vocab = seededShuffle([...listeVocabulaire.filter(m => m.t == numTheme)], 12345);
+        if(vocab.length === 0) return;
 
+        toutesLesSeries = [];
         for (let i = 0; i < 10; i++) {
             let serie = [];
-            if (i === 0) {
-                serie = melanger([...vocabulaireFiltre]).slice(0, 14);
-            } else {
-                const chevauchement = melanger([...toutesLesSeries[i-1]]).slice(0, 5);
-                const reste = vocabulaireFiltre.filter(m => !chevauchement.includes(m));
-                const nouveaux = melanger([...reste]).slice(0, 9);
-                serie = [...chevauchement, ...nouveaux];
+            let startIndex = i * 14; 
+            for (let j = 0; j < 14; j++) {
+                // Gebruik modulo om rond te gaan als de lijst kleiner is dan 140 woorden
+                let wordIndex = (startIndex + j) % vocab.length;
+                serie.push({ nl: vocab[wordIndex].nl, fr: vocab[wordIndex].fr });
             }
             toutesLesSeries.push(serie);
         }
@@ -161,7 +170,7 @@ function renderGrille() {
         carte.className = 'set-card';
         carte.innerHTML = `
             <h3>Série ${i+1}</h3>
-            <p style="color:#888; font-size:14px;">14 mots (Mixés)</p>
+            <p style="color:#888; font-size:14px;">14 mots (Fixes)</p>
             <button class="btn" onclick="demarrerSerie(${i})">🚀 Commencer</button>
             <button class="btn btn-secondary" onclick="ouvrirEdition(${i})">📝 Voir/Modifier</button>
         `;
@@ -173,7 +182,8 @@ function exporterData() {
     const numTheme = document.getElementById('theme-select').value;
     if(!numTheme) return alert("Choisissez un thème d'abord.");
     const data = localStorage.getItem('creafrench_thema_' + numTheme);
-    navigator.clipboard.writeText(data).then(() => alert("Code copié ! Envoyez-le par mail pour l'utiliser ailleurs."));
+    if(!data) return alert("Pas de données modifiées à exporter.");
+    navigator.clipboard.writeText(data).then(() => alert("Code copié !"));
 }
 
 function importerData() {
@@ -186,7 +196,7 @@ function importerData() {
     }
 }
 
-function ouvrirEdition(idx) {
+function abrirEdition(idx) {
     indexSerieActuelle = idx;
     document.getElementById('edit-title').innerText = `Modifier Série ${idx + 1}`;
     const corpsTableau = document.getElementById('edit-body');
@@ -229,35 +239,25 @@ function fermerEdition() { document.getElementById('edit-screen').style.display 
 
 function demarrerSerie(idx) {
     indexSerieActuelle = idx; indexMotActuel = 0; estEnPause = false;
-    
-    // UI RESET (voor het geval we herstarten)
     document.getElementById('container').style.display = 'none';
     document.getElementById('exercise').style.display = 'flex';
-    document.getElementById('timer-container').style.display = 'block'; // Timer weer tonen
-    
-    // Knoppen resetten naar Pause/Arrêter
+    document.getElementById('timer-container').style.display = 'block'; 
     document.getElementById('exercise-buttons').innerHTML = `
         <button class="btn" style="width:140px; background:#555;" id="pause-btn" onclick="basculerPause()">Pause</button>
         <button class="btn" style="width:140px; background:var(--danger);" onclick="location.reload()">Arrêter</button>
     `;
-
     motSuivant();
 }
 
 function motSuivant() {
     const serie = toutesLesSeries[indexSerieActuelle];
-    
-    // AANPASSING: Als de lijst klaar is, niet direct resultaten tonen, maar wachten
     if (indexMotActuel >= serie.length) { 
         wachtenOpDocent(); 
         return; 
     }
-    
     tempsRestant = 8; 
     document.getElementById('word-display').innerText = serie[indexMotActuel].nl;
-    document.getElementById('word-display').style.fontSize = "60px"; // Reset grootte voor het geval dit veranderd was
     document.getElementById('info-header').innerText = `Série ${indexSerieActuelle+1} — Mot ${indexMotActuel+1}/${serie.length}`;
-    
     if (intervalle) clearInterval(intervalle);
     intervalle = setInterval(() => {
         if (!estEnPause) {
@@ -273,14 +273,11 @@ function basculerPause() {
     document.getElementById('pause-btn').innerText = estEnPause ? "Reprendre" : "Pause";
 }
 
-// NIEUWE FUNCTIE: Tussenstap
 function wachtenOpDocent() {
     clearInterval(intervalle);
-    document.getElementById('timer-container').style.display = 'none'; // Verberg timer
+    document.getElementById('timer-container').style.display = 'none'; 
     document.getElementById('word-display').innerHTML = "Série terminée !";
     document.getElementById('word-display').style.fontSize = "40px";
-    
-    // Verander de knoppen onderaan naar één grote knop
     const btnContainer = document.getElementById('exercise-buttons');
     btnContainer.innerHTML = `
         <button class="btn" style="width: auto; padding: 15px 40px; font-size: 22px; background: var(--success);" onclick="afficherResultats()">
@@ -298,7 +295,5 @@ function afficherResultats() {
     `).join('');
 }
 </script>
-
 </body>
 </html>
-
